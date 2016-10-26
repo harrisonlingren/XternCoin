@@ -1,4 +1,4 @@
-import requests, random, collections, sys, socket, json
+import random, collections, sys, socket, json
 
 # initialize number queue, ledger dictionary and max range
 num_queue = collections.deque()
@@ -12,10 +12,10 @@ def update_queue():
 
     while (len(num_queue) < 25):
         new_num = random.randrange(0,MAX_RANGE)
-        print('>  Adding to queue: {}'.format(new_num))
+        print('Adding to queue: {}'.format(new_num))
         num_queue.append(new_num)
 
-# update ledger method, run each time a guess is successful
+# update ledger method -- If success == true, update ledger and return new balance. Otherwise, return old balance
 def update_ledger(user, success):
     global ledger
     global num_queue
@@ -24,21 +24,18 @@ def update_ledger(user, success):
     if user not in ledger:
         ledger[user] = 0
 
-    print('Grabbed user: {} | Balance: {}'.format(user, ledger[user]))
-
     if success:
         ledger[user] += 1
         num_queue.pop()
+        print('>  Updated user: {} | Balance: {}'.format(user, ledger[user]))
         return ledger[user]
     else:
         return ledger[user]
 
 # parse details from the message, return as dictionary
 def parse_message(msg):
-    print('This will eventually parse a connection message')
-
     # strip headers from client request, create detail object and return
-    parsed_msg = json.loads(msg.splitlines()[0])
+    parsed_msg = json.loads(msg)
 
     user = parsed_msg['user']
     guess = int(parsed_msg['guess'])
@@ -111,7 +108,7 @@ def main(argv):
     s.shutdown(socket.SHUT_RDWR)
     s.close()
 
-# General shizz
+# SOP
 if __name__ == '__main__':
     # Check if the port is specified in arguments
     if len(sys.argv) > 2:
